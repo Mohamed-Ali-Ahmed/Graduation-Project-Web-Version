@@ -122,12 +122,10 @@ class FollowController extends Controller
     
     ///////////////////////////////////////////////////////////////////////////
     
-    public static function actionAdd()
+    public function actionAdd()
     {
-    	$session = Yii::$app->session;
-    	$session->open ();
-    	$studentID = $session->get ("studentID");
-		$staffID = $session->get ("staffFormalEmail");
+    	$studentID = $_POST["studentID"];
+		$staffID = $_POST["staffFormalEmail"];
 		$status = array ();
 		$checkFollow = "pinding";
     	if (Follow::find()->where(['studentID' => $studentID , 'staffID' => $staffID])->one())
@@ -145,7 +143,7 @@ class FollowController extends Controller
     	   
     	 	if ($model->save()){
     	 		$status["status"] = "Followed";
-    			$checkFollow = "Done";
+    			$checkFollow = "Ok";
     	}
     	
     		else 
@@ -154,44 +152,21 @@ class FollowController extends Controller
     		}	
     	
     }
-    header("Location: http://localhost/basic/web/index.php?r=profile&done=ok"); /* Redirect browser */
-    exit();
+    
     }
 
     
     public static function actionRemove(){
-    	$session = Yii::$app->session;
-    	$session->open ();
-    	$studentID = $session->get ("studentID");
-    	$staffID = $session->get ("staffFormalEmail");
+    	$studentID = $_POST["studentID"];
+    	$staffID = $_POST["staffFormalEmail"];
     	$status = array ();
     	$model = Follow::deleteAll ( [ 'studentID' => $studentID , 'staffID' => $staffID] );
 		if ($model == 1) {
-			$status ["Status"] = "Ok Done";
+			$status ["status"] = "Ok";
 		} else {
-			$status ["Status"] = "Failed To Delete From Database";
+			$status ["status"] = "Failed To Delete From Database";
 		}
-    
-    header("Location: http://localhost/basic/web/index.php?r=profile&done=ok"); /* Redirect browser */
-    exit();
-    }
-    
-    
-    public static function checkFollwer()
-    {
-    	$session = Yii::$app->session;
-    	$session->open ();
-    	$studentID = $session->get ("studentID");
-    	$staffID = $session->get ("staffFormalEmail");
-    	$checkFollow = "pinding";
-    	if (Follow::find()->where(['studentID' => $studentID , 'staffID' => $staffID])->one())
-    	{
-    		return $checkFollow = "Followed";
-    	}
-    	else
-    	{
-    		return $checkFollow = "NotFollowed";
-    	}
+		return json_encode($status);
     }
     
     //to get some all staff that some id isfollowing 

@@ -65,14 +65,11 @@ AppAsset::register($this);
         ?>
         <?= $content
         ?>
-    </div>
+    
+ 
 </div>
-<br><br><br><br><br><br><br><br><br><br><br><br>
-<footer class="footer">
-    <div style="text-align:center;">
-        Copyright Saved And Recieved To Nourhan Abdo &copy; 2016
-    </div>
-</footer>
+</div>
+
 
 <?php //$this->endBody() 
 ?>

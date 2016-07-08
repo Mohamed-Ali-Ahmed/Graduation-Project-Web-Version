@@ -128,20 +128,20 @@ class StaffController extends Controller {
 		}
 	}
 	
-	public function actionSignup() {
+	public function actionSignup()
+	{
 		$name = $_POST ['staffName'];
 		$formalemail = $_POST ['staffFormalEmail'];
-		$email = $_POST ['staffEmail'];
 		$pass = $_POST ['staffPassword'];
 		$staff = new Staff ();
 		$staff->formalemail = $formalemail;
 		$staff->name = $name;
-		$staff->email = $email;
 		$staff->password = $pass;
 		$status = array ();
 		$checkExists = Staff::find ()->where ( [ 
 				'formalemail' => $formalemail 
 		] )->one ();
+		$r;
 		if ($checkExists == NULL) {
 			if ($staff->save ()) {
 				$status ["status"] = "Ok";
@@ -151,8 +151,7 @@ class StaffController extends Controller {
 		} else {
 			$status ["status"] = "Failed";
 		}
-		header("Location: http://localhost/basic/web/index.php?r=site"); /* Redirect browser */
-		exit();
+		return json_encode($status);
 	}
 	
 	
@@ -165,17 +164,11 @@ class StaffController extends Controller {
 		] )->one ();
 		$status = array ();
 		if ($model == NUll) {
-			$status ["status"] = "Faild";
+			$status ["status"] = "Failed";
 		} else {
-			$status ["formalemail"] = $model->formalemail;
-			$status ["name"] = $model->name;
-			$status ["email"] = $model->email;
+			$status ["status"] = "Ok";
 		}
-		$session = Yii::$app->session;
-		$session->open();
-		$session->set('staffFormalEmail', $model->formalemail);
-		header("Location: http://localhost/basic/web/index.php?r=createpost"); /* Redirect browser */
-		exit();
+		return json_encode($status);
 	}
 	
 	
@@ -188,7 +181,7 @@ class StaffController extends Controller {
 		$model = $staff->getPosts ();
 		$status = array ();
 		if ($model == Null) {
-			$status ["status"] = "faild";
+			$status ["status"] = "Failed";
 		} else {
 			$status ["formalemail"] = $model [0]->content;
 			$status ["name"] = $model [0]->owner;
@@ -224,8 +217,9 @@ class StaffController extends Controller {
 		return json_encode ( $all_staff );
 	}
 	
-	public static function getStaffName($staffFormalEmail)
+	public function actionGetstaffname()
 	{
+		$staffFormalEmail = $_POST['staffFormalEmail'];
 		$staff = new Staff();
 		$staffModel = Staff::find ()->where ( [ 'formalemail' => $staffFormalEmail] )->one ();
 		return $staffModel->name;

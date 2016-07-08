@@ -149,30 +149,29 @@ class StudentController extends Controller {
 		} else {
 			$status ["status"] = "Failed";
 		}
-		header("Location: http://localhost/basic/web/index.php?r=site"); /* Redirect browser */
-		exit();
+		return json_encode($status);
 	}
 	
 	
 	public function actionLogin() {
-		$email = $_POST ['studentEmail'];
+		$id = $_POST ['studentID'];
 		$password = $_POST ['studentPassword'];
-		$model = Student::find()->where(['email' => $email , 'password' => $password])->one();
+		$model = Student::find()->where(['id' => $id , 'password' => $password])->one();
 	    $status = array ();
 		if ($model == NUll) {
-			$status ["status"] = "Faild";
+			$status ["status"] = "Failed";
 		} else {
-			$status ["id"] = $model->id;
-			$status ["name"] = $model->name;
-			$status ["email"] = $model->email;
+			$status ["status"] = "Ok";
 		}
-		$session = Yii::$app->session;
-		$session->open();
-		$session->set('studentID', $model->id);
-		header("Location: http://localhost/basic/web/index.php?r=showfollowersposts"); /* Redirect browser */
-		exit();
+		return json_encode($status);
 	}
 	
-	
+	public function actionGetstudentname()
+	{
+		$studentID = $_POST['studentID'];
+		$student = new Student();
+		$studentModel = Student::find ()->where ( [ 'id' => $studentID] )->one ();
+		return $studentModel->name;
+	}
 	
 }

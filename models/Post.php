@@ -13,7 +13,6 @@ use Yii;
  * @property string $time
  *
  * @property Notification[] $notifications
- * @property Staff $owner0
  */
 class Post extends \yii\db\ActiveRecord
 {
@@ -32,8 +31,8 @@ class Post extends \yii\db\ActiveRecord
     {
         return [
             [['owner', 'content', 'time'], 'required'],
-            [['owner', 'time'], 'string', 'max' => 50],
-            [['content'], 'string', 'max' => 255]
+            [['content'], 'string'],
+            [['owner', 'time'], 'string', 'max' => 50]
         ];
     }
 
@@ -56,13 +55,5 @@ class Post extends \yii\db\ActiveRecord
     public function getNotifications()
     {
         return $this->hasMany(Notification::className(), ['postID' => 'postID']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getOwner0()
-    {
-        return $this->hasOne(Staff::className(), ['formalemail' => 'owner']);
     }
 }

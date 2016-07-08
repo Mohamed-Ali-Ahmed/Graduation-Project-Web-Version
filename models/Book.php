@@ -8,12 +8,13 @@ use Yii;
  * This is the model class for table "book".
  *
  * @property integer $bookID
- * @property integer $studentID
+ * @property string $studentID
  * @property integer $slotID
- * @property integer $bookCount
+ * @property string $content
+ * @property string $date
  *
- * @property Student $student
  * @property Slot $slot
+ * @property Student $student
  */
 class Book extends \yii\db\ActiveRecord
 {
@@ -31,8 +32,10 @@ class Book extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['studentID', 'slotID', 'bookCount'], 'required'],
-            [['studentID', 'slotID', 'bookCount'], 'integer']
+            [['studentID', 'slotID', 'content', 'date'], 'required'],
+            [['slotID'], 'integer'],
+            [['date'], 'safe'],
+            [['studentID', 'content'], 'string', 'max' => 50]
         ];
     }
 
@@ -45,16 +48,9 @@ class Book extends \yii\db\ActiveRecord
             'bookID' => 'Book ID',
             'studentID' => 'Student ID',
             'slotID' => 'Slot ID',
-            'bookCount' => 'Book Count',
+            'content' => 'Content',
+            'date' => 'Date',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getStudent()
-    {
-        return $this->hasOne(Student::className(), ['id' => 'studentID']);
     }
 
     /**
@@ -63,5 +59,13 @@ class Book extends \yii\db\ActiveRecord
     public function getSlot()
     {
         return $this->hasOne(Slot::className(), ['slotID' => 'slotID']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getStudent()
+    {
+        return $this->hasOne(Student::className(), ['id' => 'studentID']);
     }
 }

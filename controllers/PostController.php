@@ -120,15 +120,12 @@ class PostController extends Controller {
 	 *
 	 * @return mixed
 	 */
-	public function actionWrite() {
+	public function actionWrite() 
+	{
+		$owner = $_POST ['owner'];
 		$content = $_POST ['content'];
+		$dateTime = $_POST ['time'];
 		$status = array ();
-		$session = Yii::$app->session;
-		$session->open ();
-		$today = date("F j, Y, g:i a");
-		$dateTime = (string)$today;
-		$owner = $session->get ( "staffFormalEmail" );
-		echo "owner = " . $owner . "<br> content = " . $content . "<br> time = " . $dateTime . "<br>";
 		$postModel = new Post ();
 		$postModel->owner = ( string ) $owner;
 		$postModel->content = ( string ) $content;
@@ -136,40 +133,37 @@ class PostController extends Controller {
 		if ($postModel->save ()) {
 			$status ["status"] = "Ok";
 		} else {
-			$status ["status"] = "Failed To Insert To Database";
+			$status ["status"] = "Failed";
 		}
-		 header("Location: http://localhost/basic/web/index.php?r=createpost"); /* Redirect browser */
-		 exit();
+		return json_encode($status); 
 	}
 	
 	/**
 	 * Update Post Service
 	 */
-	public function actionUpdatepost() {
-		$status = array ();
+	public function actionUpdatepost() 
+	{
 		$postID = $_POST ['postID'];
 		$newContent = $_POST ['newContent'];
+		$status = array ();
 		$postModel = Post::updateAll(array ('content' => $newContent), ['postID' => $postID] );
-		header("Location: http://localhost/basic/web/index.php?r=createpost"); /* Redirect browser */
-		exit();
 	}
 	
 	/**
 	 * Delete Post Service
 	 */
 	public function actionDeletepost() {
+		$postID = $_POST ['postID'];
 		$status = array ();
-		$postID = $_GET ['postID'];
 		$postModel = Post::deleteAll ( [ 
 				'postID' => $postID 
 		] );
 		if ($postModel == 1) {
-			$status ["Status"] = "Ok Done";
+			$status ["status"] = "Ok";
 		} else {
-			$status ["Status"] = "Failed To Delete From Database";
+			$status ["status"] = "Failed";
 		}
-		header("Location: http://localhost/basic/web/index.php?r=createpost"); /* Redirect browser */
-		exit();
+		return json_encode($status);
 	}
 	
 	/**
@@ -189,13 +183,13 @@ class PostController extends Controller {
 	 * }
 	 * }
 	 */
-	public static function actionGetmyposts($staffFormalEmail) {
-		//$staffFormalEmail = $_GET ['staffFormalEmail'];
+	public function actionGetmyposts()
+	{
+		$staffFormalEmail = $_POST['staffFormalEmail'];
 		$model = array ();
 		$model = Post::findAll( ([ 
 				'owner' => $staffFormalEmail 
 		]) );
-		
 		$status = array ();
 		$myPosts = array ();
 		if ($model == NUll) {
@@ -210,17 +204,16 @@ class PostController extends Controller {
 		}
 		return json_encode ( $myPosts );
 	}
-	public static function actionShowfollowersposts() 
+	public function actionShowfollowersposts() 
 	{
-		$session = Yii::$app->session;
-		$session->open ();
-		$studentID = $session->get ("studentID");
+		$studentID = $_POST ['studentID'];
 		$followModel = array ();
 		$followModel = Follow::findAll ( ([ 'studentID' => $studentID ]) );
 		$status = array ();
+		
 		$result = array ();
 		if ($followModel == NULL) {
-			$status ["status"] = "Faild To Find Student With This ID";
+			$status ["status"] = "Failed To Find Student With This ID";
 		} else {
 			$status ["status"] = "Ok";
 			$i = 0;
@@ -230,26 +223,35 @@ class PostController extends Controller {
 				$posts = array ();
 				$posts = Post::findAll ( ([ 'owner' => $staffID ]) );
 				if ($posts == NULL) {
-					$status ["status"] = "Faild To Find Posts For This Staff";
+					$status ["status"] = "Failed To Find Posts For This Staff";
 				} else {
 					$status ["status"] = "Ok";
+
 					$allPosts = array ();
+					
 					for($j = 0; $j < sizeof ( $posts ); $j++) {
 						$post = array ();
 						$post ["Content"] = $posts [$j]->content;
-						$name = StaffController::getStaffName($posts [$j]->owner);
+						$ch = curl_init("http://localhost/basic/web/index.php?r=staff/getstaffname");
+						curl_setopt($ch, CURLOPT_POST, 1);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, "staffFormalEmail=".$posts[$j]->owner);
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						$name = curl_exec ($ch);
 						$post ["Owner"] = $name;
+						
+						$post ["staffFormalEmail"] = $posts[$j]->owner;
+						
 						$post ["Time"] = $posts [$j]->time;
 						$allPosts [$j] = $post;
+					
 					}
 					$result [$i] = $allPosts;
-				}
-			}
-		}
-		//$result = json_encode ( $result );
-		//$result = preg_replace ( '/"([^"]+)"\s*:\s*/', '$1:', $result );
+					}
+					}
+					}
+		
+		
 		return json_encode($result);
-		//return json_encode($allPosts);
 	}
 	public function tt() {
 		$id = $_GET ['id'];

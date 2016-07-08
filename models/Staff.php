@@ -9,12 +9,9 @@ use Yii;
  *
  * @property string $formalemail
  * @property string $name
- * @property string $email
  * @property string $password
  *
- * @property Agenda[] $agendas
  * @property Follow[] $follows
- * @property Post[] $posts
  */
 class Staff extends \yii\db\ActiveRecord
 {
@@ -32,8 +29,9 @@ class Staff extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['formalemail', 'name', 'email', 'password'], 'required'],
-            [['formalemail', 'name', 'email', 'password'], 'string', 'max' => 50]
+            [['formalemail', 'name', 'password'], 'required'],
+            [['formalemail', 'name', 'password'], 'string', 'max' => 50],
+            [['formalemail'], 'unique']
         ];
     }
 
@@ -45,17 +43,8 @@ class Staff extends \yii\db\ActiveRecord
         return [
             'formalemail' => 'Formalemail',
             'name' => 'Name',
-            'email' => 'Email',
             'password' => 'Password',
         ];
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getAgendas()
-    {
-        return $this->hasMany(Agenda::className(), ['owner' => 'formalemail']);
     }
 
     /**
@@ -64,13 +53,5 @@ class Staff extends \yii\db\ActiveRecord
     public function getFollows()
     {
         return $this->hasMany(Follow::className(), ['staffID' => 'formalemail']);
-    }
-
-    /**
-     * @return \yii\db\ActiveQuery
-     */
-    public function getPosts()
-    {
-        return $this->hasMany(Post::className(), ['owner' => 'formalemail']);
     }
 }
